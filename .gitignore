@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# nnU-Net model
+*.pth
+
 # C extensions
 *.so
 
