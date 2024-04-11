@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 
 # nnU-Net model
-*.pth
 misc_files
 
 # C extensions
