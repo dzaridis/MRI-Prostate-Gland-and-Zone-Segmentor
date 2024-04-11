@@ -5,6 +5,7 @@ __pycache__/
 
 # nnU-Net model
 *.pth
+misc_files
 
 # C extensions
 *.so
