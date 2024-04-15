@@ -25,7 +25,11 @@ To run the script type the following in the Repo's workspace
 python __main__.py
 ```
 
+## Execute as docker
 
+A docker image is available for anyone to use at the following repository
+current version:1.4
+https://hub.docker.com/repository/docker/dimzaridis/prostai-segmentor/general
 
 ## Authors
 
