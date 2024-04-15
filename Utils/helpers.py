@@ -3,6 +3,48 @@ import numpy as np
 import SimpleITK as sitk
 import logging
 from Utils import ImageProcessor
+import json
+nnUNet_raw = os.path.join("nnUnet_paths", "nnUNet_raw")
+
+def outputs_saving(wg_dict_original:dict, 
+                zones_original:dict,
+                wg_dict_resampled:dict,
+                zones_resampled:dict):
+    """Saves the original and resampled to the original wg, tz and pz masks 
+
+    Args:
+        wg_dict_original (dict): dictionary with the paths
+        zones_original (dict): dictionary with the paths
+        wg_dict_resampled (dict): dictionary with the paths
+        zones_resampled (dict): dictionary with the paths
+    """
+    for k,v in wg_dict_original.items():
+        v.update(zones_original[k])
+    for k,v in wg_dict_resampled.items():
+        v.update(zones_resampled[k])
+
+    with open(os.path.join("Outputs","ResampledToOriginalSegmentationPaths.json"), "w") as file:
+        json.dump(wg_dict_resampled, file, indent=4)
+    with open(os.path.join("Outputs","nnOutputSegmentationPaths.json"), "w") as file:
+        json.dump(wg_dict_original, file, indent=4)
+
+def initial_processing(pats:dict):
+    """Performs image processing operations to prepare patients
+
+    Args:
+        pats (dict): Initial dict with patients
+
+    Returns:
+        dict: path to the processed patient to be ready for nnU-Net whole gland model
+    """
+    pats_for_wg = {}
+    for key,val in pats.items():
+        processed = ImageProcessor.ImageProcessing(val)
+        pats_for_wg.update({key:processed})
+
+    for k,v in pats_for_wg.items():
+        sitk.WriteImage(v, os.path.join(nnUNet_raw, os.path.join(os.path.join('Dataset016_WgSegmentationPNetAndPicai', 'ImagesTs'), f"ProstateWG_{k}_0000.nii.gz")))   
+    return pats_for_wg
 
 class ImageProcessorClass:
     def __init__(self, base_output_path, nnUNet_raw):
@@ -58,6 +100,7 @@ class ImageProcessorClass:
 
                 self.wg_dict_original[key] = output_paths["Original"]
                 self.wg_dict_resampled[key] = output_paths["Resampled"]
+                sitk.WriteImage(filtered_ser, os.path.join(nnUNet_raw, os.path.join(os.path.join('Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs'), f"ProstateZonesFilteredLessDilated_ProstateZones_{key}_0000.nii.gz")))
 
             except Exception as e:
                 logging.error(f"Error processing {key}: {e}")

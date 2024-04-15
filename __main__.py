@@ -2,57 +2,16 @@ import os
 from Utils import InputCheck
 from Utils import ImageProcessor
 import torch
-import helpers
+from Utils import helpers, nnUnet_call
 import SimpleITK as sitk
 from MedProIO import Coregistrator
 import numpy as np
 import json
 import warnings
 import multiprocessing
-import nnUnet_call
 warnings.filterwarnings('ignore')
 import logging
 nnUNet_raw = os.path.join("nnUnet_paths", "nnUNet_raw")
-
-def outputs_saving(wg_dict_original:dict, 
-                zones_original:dict,
-                wg_dict_resampled:dict,
-                zones_resampled:dict):
-    """Saves the original and resampled to the original wg, tz and pz masks 
-
-    Args:
-        wg_dict_original (dict): dictionary with the paths
-        zones_original (dict): dictionary with the paths
-        wg_dict_resampled (dict): dictionary with the paths
-        zones_resampled (dict): dictionary with the paths
-    """
-    for k,v in wg_dict_original.items():
-        v.update(zones_original[k])
-    for k,v in wg_dict_resampled.items():
-        v.update(zones_resampled[k])
-
-    with open(os.path.join("Outputs","ResampledToOriginalSegmentationPaths.json"), "w") as file:
-        json.dump(wg_dict_resampled, file, indent=4)
-    with open(os.path.join("Outputs","nnOutputSegmentationPaths.json"), "w") as file:
-        json.dump(wg_dict_original, file, indent=4)
-
-def initial_processing(pats:dict):
-    """Performs image processing operations to prepare patients
-
-    Args:
-        pats (dict): Initial dict with patients
-
-    Returns:
-        dict: path to the processed patient to be ready for nnU-Net whole gland model
-    """
-    pats_for_wg = {}
-    for key,val in pats.items():
-        processed = ImageProcessor.ImageProcessing(val)
-        pats_for_wg.update({key:processed})
-
-    for k,v in pats_for_wg.items():
-        sitk.WriteImage(v, os.path.join(nnUNet_raw, os.path.join(os.path.join('Dataset016_WgSegmentationPNetAndPicai', 'ImagesTs'), f"ProstateWG_{k}_0000.nii.gz")))   
-    return pats_for_wg
 
 def run():
     # Setup logging
@@ -62,7 +21,7 @@ def run():
     pats = InputCheck.load_nii_gz_files(path) # loads the NIfTI files from the volume or path
 
     # prepares patients for the first nnUnet which is responsible for Whole Gland segmentation
-    pats_for_wg = initial_processing(pats)
+    pats_for_wg = helpers.initial_processing(pats)
 
     # Performes Whole gland segmentation
     wg_nn = nnUnet_call.WGNNUnet(input_path="Dataset016_WgSegmentationPNetAndPicai", output_path="OutcomesWG")
@@ -86,7 +45,7 @@ def run():
     zones_original, zones_resampled = zone_handling.get_paths()
 
     # saves the dictionaries indexing the saved paths
-    outputs_saving(wg_dict_original, zones_original, wg_dict_resampled, zones_resampled)
+    helpers.outputs_saving(wg_dict_original, zones_original, wg_dict_resampled, zones_resampled)
 
     # Deletes the renduntant files from the workspace
     renduntant = helpers.DeleteRedundantfiles()
