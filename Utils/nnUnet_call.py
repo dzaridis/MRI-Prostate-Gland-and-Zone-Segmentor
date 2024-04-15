@@ -9,6 +9,7 @@ import SimpleITK as sitk
 from abc import ABC, abstractmethod
 import torch
 
+
 class BaseNNUnetModule(ABC):
 
     def __init__(self, input_path, output_path):
@@ -24,12 +25,15 @@ class BaseNNUnetModule(ABC):
         pass
 
 class WGNNUnet(BaseNNUnetModule):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    # Create nnUNetPredictor with the determined device
     predictor = nnUNetPredictor(
         tile_step_size=0.5,
         use_gaussian=True,
         use_mirroring=True,
-        perform_everything_on_gpu=False,
-        device = torch.device('cpu'),
+        perform_everything_on_gpu=device.type == 'cuda',  # Set to True if using GPU, False if using CPU
+        device=device,
         verbose=False,
         verbose_preprocessing=False,
         allow_tqdm=False
@@ -60,12 +64,15 @@ class WGNNUnet(BaseNNUnetModule):
         return pats_for_wg_inference
 
 class ZonesNNUnet(BaseNNUnetModule):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    # Create nnUNetPredictor with the determined device
     predictor = nnUNetPredictor(
         tile_step_size=0.5,
         use_gaussian=True,
         use_mirroring=True,
-        perform_everything_on_gpu=False,
-        device = torch.device('cpu'),
+        perform_everything_on_gpu=device.type == 'cuda',  # Set to True if using GPU, False if using CPU
+        device=device,
         verbose=False,
         verbose_preprocessing=False,
         allow_tqdm=False
