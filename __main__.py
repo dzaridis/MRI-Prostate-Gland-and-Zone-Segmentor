@@ -17,6 +17,7 @@ def run():
     # Setup logging
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+    # Loads the files
     path = "Pats" # load the volume here
     pats = InputCheck.load_nii_gz_files(path) # loads the NIfTI files from the volume or path
 
