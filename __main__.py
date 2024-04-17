@@ -1,5 +1,6 @@
 import os
 from Utils import InputCheck
+from flask import Flask, request, jsonify, render_template, jsonify, redirect, url_for
 from Utils import ImageProcessor
 import torch
 from Utils import helpers, nnUnet_call, segmentor_pipeline
@@ -11,18 +12,36 @@ import warnings
 import multiprocessing
 warnings.filterwarnings('ignore')
 import logging
+import tkinter as tk
+from tkinter import filedialog
 
-def run():
-    # Setup logging
+def select_folder(prompt):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    folder_path = filedialog.askdirectory(title=prompt)
+    root.destroy()
+    return folder_path
+
+def run_process(input_folder, output_folder):
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    INPUT_VOLUME = "Pats"
-    OUTPUT_VOLUME = "Outputs"
-    # Loads the files
-    pats = InputCheck.load_nii_gz_files(INPUT_VOLUME) # loads the NIfTI files from the volume or path
+    INPUT_VOLUME = input_folder
+    OUTPUT_VOLUME = output_folder
+    pats = InputCheck.load_nii_gz_files(INPUT_VOLUME)
     segmentor_pipeline.segmentor_pipeline_operation(output_volume=OUTPUT_VOLUME, pats=pats)
+    print("Processing completed successfully!")
 
 if __name__ == '__main__':
-    # Initialize and start your multiprocessing objects here
-    p = multiprocessing.Process(target=run)
-    p.start()
-    p.join()
+    input_folder = select_folder("Select Input Folder")
+    output_folder = select_folder("Select Output Folder")
+
+    if input_folder and output_folder:
+        # Here you might want to confirm the selections or start processing immediately
+        print(f"Selected input folder: {input_folder}")
+        print(f"Selected output folder: {output_folder}")
+        
+        # Start processing
+        process = multiprocessing.Process(target=run_process, args=(input_folder, output_folder))
+        process.start()
+        process.join()
+    else:
+        print("No folders selected. Exiting application.")
