@@ -16,7 +16,7 @@ nnUNet_raw = os.path.join("nnUnet_paths", "nnUNet_raw")
 def segmentor_pipeline_operation(output_volume:str, pats:dict):
     segmentor = Segmentor()
     segmentor.wg_model(pats)
-    segmentor.preparation_zones()
+    segmentor.preparation_zones(input_patients=pats)
     segmentor.zones_model()
     segmentor.post_process_zones(output_patient_folder=output_volume, pats=pats)
     segmentor.saving()
@@ -43,9 +43,9 @@ class Segmentor:
         wg_nn.prediction()
         self.pats_for_wg_inference = wg_nn.return_paths(pats_for_wg=self.pats_for_wg)
 
-    def preparation_zones(self):
+    def preparation_zones(self, input_patients:dict):
         file_handling = helpers.ImageProcessorClass(base_output_path='Outputs', nnUNet_raw = nnUNet_raw)
-        file_handling.process_images(self.pats_for_wg_inference, self.pats_for_wg)
+        file_handling.process_images(self.pats_for_wg_inference, self.pats_for_wg, pats=input_patients)
         self.wg_dict_original, self.wg_dict_resampled = file_handling.get_paths()
 
     def zones_model(self):

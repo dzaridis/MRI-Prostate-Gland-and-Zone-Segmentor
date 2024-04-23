@@ -65,7 +65,7 @@ class ImageProcessorClass:
             logging.error(f"Error creating directories for {key}: {e}")
             raise
 
-    def process_images(self, pats_for_wg_inference, pats_for_wg):
+    def process_images(self, pats_for_wg_inference, pats_for_wg, pats):
         for key, val in pats_for_wg_inference.items():
             try:
                 wg_binary = sitk.ReadImage(val["binary"])
@@ -79,8 +79,8 @@ class ImageProcessorClass:
                 wg_probs = sitk.GetImageFromArray(wg_probs)
                 wg_probs.CopyInformation(wg_binary)
 
-                wg_binary_resampled = sitk.Resample(wg_binary, pats_for_wg[key], sitk.Transform(), sitk.sitkNearestNeighbor)
-                wg_probs_resampled = sitk.Resample(wg_probs, pats_for_wg[key], sitk.Transform(), sitk.sitkNearestNeighbor)
+                wg_binary_resampled = sitk.Resample(wg_binary, pats[key], sitk.Transform(), sitk.sitkNearestNeighbor)
+                wg_probs_resampled = sitk.Resample(wg_probs, pats[key], sitk.Transform(), sitk.sitkNearestNeighbor)
 
                 output_paths = {
                     "Original": {
@@ -253,3 +253,30 @@ class DeleteRedundantfiles:
                     print(f"File {file_path} deleted successfully.")
         except Exception as e:
             print(f"Error cleaning directory {zones_paths}: {e}")
+
+import SimpleITK as sitk
+
+class MaskPostProcessor:
+    def __init__(self, out_dict_path):
+        """
+        Initialize the MaskProcessor with a SimpleITK image.
+        """
+        with open(out_dict_path,"r") as f:
+            self.images = json.load(f)
+        self.image = None
+
+    def batch_post_process(self):
+        for k,v in self.images.items():
+            image_wg= sitk.ReadImage(v["wg_binary"])
+            image_pz= sitk.ReadImage(v["pz_binary"])
+            image_tz= sitk.ReadImage(v["tz_binary"])
+            combined_mask = sitk.Or(image_wg, image_pz)
+            combined_mask = sitk.Or(combined_mask, image_tz)
+            sitk.WriteImage(combined_mask, v["wg_binary"])
+
+
+def process_masks(out_volume:str):
+    mps = MaskPostProcessor(os.path.join(out_volume, "nnOutputSegmentationPaths.json"))
+    mps.batch_post_process()
+    mps = MaskPostProcessor(os.path.join(out_volume, "ResampledToOriginalSegmentationPaths.json"))
+    mps.batch_post_process()

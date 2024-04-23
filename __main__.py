@@ -1,6 +1,6 @@
 import os
 from Utils import InputCheck
-from flask import Flask, request, jsonify, render_template, jsonify, redirect, url_for
+#from flask import Flask, request, jsonify, render_template, jsonify, redirect, url_for
 from Utils import ImageProcessor
 import torch
 from Utils import helpers, nnUnet_call, segmentor_pipeline
@@ -26,8 +26,13 @@ def run_process(input_folder, output_folder):
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     INPUT_VOLUME = input_folder
     OUTPUT_VOLUME = output_folder
-    pats = InputCheck.load_nii_gz_files(INPUT_VOLUME)
-    segmentor_pipeline.segmentor_pipeline_operation(output_volume=OUTPUT_VOLUME, pats=pats)
+    pats = InputCheck.load_nii_gz_files(INPUT_VOLUME) # loads files
+    segmentor_pipeline.segmentor_pipeline_operation(output_volume=OUTPUT_VOLUME, pats=pats) # perform segmentation operations
+    try:
+        helpers.process_masks(out_volume=OUTPUT_VOLUME) # post process masks, filling holes for WG and TZ when necessary
+    except Exception as e:
+        print ("ERROR IN THE POST PROCESS OF WG MASK, CHECK SEGMENTATION",e)
+        pass
     print("Processing completed successfully!")
 
 if __name__ == '__main__':

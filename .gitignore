@@ -8,6 +8,7 @@ misc_files
 nnUnet_paths
 Outputs
 Pats
+ProcancerPatients
 ProCancer-i-whitelist1.script
 
 # C extensions

@@ -52,6 +52,12 @@ def mask_dilation(mask):
 
 
 def filter_ser(image, mask):
+    if not (image.GetOrigin() == mask.GetOrigin() and
+            image.GetSpacing() == mask.GetSpacing() and
+            image.GetDirection() == mask.GetDirection()):
+        mask.SetOrigin(image.GetOrigin())
+        mask.SetSpacing(image.GetSpacing())
+        mask.SetDirection(image.GetDirection())
     return sitk.Mask(image, mask)
 
 
