@@ -16,7 +16,7 @@ import logging
 # from tkinter import filedialog
 
 # def select_folder(prompt):
-#     root = tk.Tk()
+#     root = tk.Tk()docker
 #     root.withdraw()  # Hide the main window
 #     folder_path = filedialog.askdirectory(title=prompt)
 #     root.destroy()
@@ -24,8 +24,8 @@ import logging
 
 def run_process(): #input_folder, output_folder
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    INPUT_VOLUME = "/Pats"
-    OUTPUT_VOLUME = "/Outputs"
+    INPUT_VOLUME = "Pats"
+    OUTPUT_VOLUME = "Outputs"
     pats = InputCheck.load_nii_gz_files(INPUT_VOLUME) # loads files
     try:
         segmentor_pipeline.segmentor_pipeline_operation(output_volume=OUTPUT_VOLUME, pats=pats) # perform segmentation operations
