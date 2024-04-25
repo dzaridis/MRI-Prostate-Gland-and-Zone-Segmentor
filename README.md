@@ -1,4 +1,16 @@
+# Branches Description
+## main: YOu can directly create the docker image by cloning the branch and execute docker build  
+1. INPUT VOLUME: "/Pats"
+2. OUTPUT VOLUME: "/Outputs"
 
+## DesktopAPP
+Execute the following command. Then 2 Windows prompt will open  
+1. The first one is the input NIfTI folder -> Select a folder where the NIfTI T2-Weighted MR Prostate Volume lie in a NIfTI format (.nii.gz)
+2. The second one is the output folder you wish to extract the segmentations. Within that folder
+```Bash
+pip install -r requirements.txt
+python __main__.py
+```
 # Prostate Whole Gland and Zone automated segmentor
 
 A Python module to perform Prostate and zonal segmentation from T2 Weighted MR images
