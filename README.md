@@ -16,18 +16,20 @@ python __main__.py
 ```
 
 ## The structure of the outcome is the following    
-### The output folder  
-![The structure of the folder](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo1.jpg)  
-### The structure of the 2 json dictionaries that are references of the segmentation for each patient.  
+- The output folder  
+![The structure of the folder](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo1.jpg)
 
-- The first dictionary (ResampledToOriginalSegmentationPaths.json) corresponds to the outputs that are resampled to the initial input
-- The second dictionary (nnOutputSegmentationPaths.json) corresponds to the outputs that are extracted directly from the nnUNet in 0.5x0.5x3.0 voxel spacing   
+- The structure of the 2 json dictionaries that are references of the segmentation for each patient.  
+
+  1. The first dictionary (ResampledToOriginalSegmentationPaths.json) corresponds to the outputs that are resampled to the initial input
+  2. The second dictionary (nnOutputSegmentationPaths.json) corresponds to the outputs that are extracted directly from the nnUNet in 0.5x0.5x3.0 voxel spacing
+   
 wg_binary: Prostate's whole gland binary mask  
 wg_probs: Prostate's whole gland probabilities 
-pz_binary: Prostate's Peripheral zone binary mask  
-pz_probs: Prostate's Peripheral zone probabilities  
-tz_binary: Prostate's Transition zone binary mask  
-tz_binary: Prostate's Peripheral zone probabilities  
+pz_binary: Prostate's Peripheral zone binary mask    
+pz_probs: Prostate's Peripheral zone probabilities    
+tz_binary: Prostate's Transition zone binary mask    
+tz_binary: Prostate's Peripheral zone probabilities    
 ![Structure of the dictionaries with paths](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo2.jpg)
 
 ## Each patient will contain the following folder and each folder the following NIfTI files. Please use the json files to navigate propertly. THEY ARE MESS!  
@@ -65,7 +67,7 @@ python __main__.py
 ## Execute as docker
 
 A docker image is available for anyone to use at the following repository
-current version:1.4
+current version:1.5
 https://hub.docker.com/repository/docker/dimzaridis/prostai-segmentor/general
 
 ## Authors
