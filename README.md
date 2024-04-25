@@ -1,10 +1,10 @@
 # Branches Description
-## main
-### You can directly create the docker image by cloning the branch and execute docker build    
-1. INPUT VOLUME: "/Pats"
-2. OUTPUT VOLUME: "/Outputs"
+## main  
+### You can directly create the docker image by cloning the branch and execute docker build      
+1. INPUT VOLUME: "/Pats"  
+2. OUTPUT VOLUME: "/Outputs"  
 
-## DesktopAPP
+## DesktopAPP  
 Execute the following command. Then 2 Windows prompt will open  
 1. The first one is the input NIfTI folder -> Select a folder where the NIfTI T2-Weighted MR Prostate Volume lie in a NIfTI format (.nii.gz)
 2. The second one is the output folder you wish to extract the segmentations.
@@ -13,10 +13,11 @@ pip install -r requirements.txt
 python __main__.py
 ```
 
-## The structure of the outcome is the following  
+## The structure of the outcome is the following    
 ### The output folder  
-![The structure of the folder][https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo1.jpg]  
+![The structure of the folder](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo1.jpg)  
 ### The structure of the 2 json dictionaries that are references of the segmentation for each patient.  
+# --------------------------------
 - The first dictionary (ResampledToOriginalSegmentationPaths.json) corresponds to the outputs that are resampled to the initial input
 - The second dictionary (nnOutputSegmentationPaths.json) corresponds to the outputs that are extracted directly from the nnUNet in 0.5x0.5x3.0 voxel spacing   
 wg_binary: Prostate's whole gland binary mask  
@@ -25,11 +26,11 @@ pz_binary: Prostate's Peripheral zone binary mask
 pz_probs: Prostate's Peripheral zone probabilities  
 tz_binary: Prostate's Transition zone binary mask  
 tz_binary: Prostate's Peripheral zone probabilities  
-![Structure of the dictionaries with paths][https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo2.jpg]
+![Structure of the dictionaries with paths](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo2.jpg)
 
 ## Each patient will contain the following folder and each folder the following NIfTI files. Please use the json files to navigate propertly. THEY ARE MESS!  
-![Folders within each patient][https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo3.jpg]  
-![Files within each patient's subfolders][https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo4.jpg]  
+![Folders within each patient](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo3.jpg)  
+![Files within each patient's subfolders](https://github.com/dzaridis/MRI-Prostate-Gland-and-Zone-Segmentor/blob/main/Materials/photo4.jpg)  
 ### The structure of the 2 json dictionaries that are references of the segmentation for each patient.  
 # Prostate Whole Gland and Zone automated segmentor
 
