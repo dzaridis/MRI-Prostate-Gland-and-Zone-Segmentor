@@ -12,20 +12,20 @@ import warnings
 import multiprocessing
 warnings.filterwarnings('ignore')
 import logging
-# import tkinter as tk
-# from tkinter import filedialog
+import tkinter as tk
+from tkinter import filedialog
 
-# def select_folder(prompt):
-#     root = tk.Tk()docker
-#     root.withdraw()  # Hide the main window
-#     folder_path = filedialog.askdirectory(title=prompt)
-#     root.destroy()
-#     return folder_path
+def select_folder(prompt):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    folder_path = filedialog.askdirectory(title=prompt)
+    root.destroy()
+    return folder_path
 
-def run_process(): #input_folder, output_folder
+def run_process(input_folder, output_folder): #
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    INPUT_VOLUME = "Pats"
-    OUTPUT_VOLUME = "Outputs"
+    INPUT_VOLUME = input_folder #"Pats"
+    OUTPUT_VOLUME = output_folder # "Outputs"
     pats = InputCheck.load_nii_gz_files(INPUT_VOLUME) # loads files
     try:
         segmentor_pipeline.segmentor_pipeline_operation(output_volume=OUTPUT_VOLUME, pats=pats) # perform segmentation operations
@@ -41,17 +41,17 @@ def run_process(): #input_folder, output_folder
     print("Processing completed successfully!")
 
 if __name__ == '__main__':
-    # input_folder = select_folder("Select Input Folder")
-    # output_folder = select_folder("Select Output Folder")
+    input_folder = select_folder("Select Input Folder")
+    output_folder = select_folder("Select Output Folder")
 
-    # if input_folder and output_folder:
-    #     # Here you might want to confirm the selections or start processing immediately
-    #     print(f"Selected input folder: {input_folder}")
-    #     print(f"Selected output folder: {output_folder}")
+    if input_folder and output_folder:
+        # Here you might want to confirm the selections or start processing immediately
+        print(f"Selected input folder: {input_folder}")
+        print(f"Selected output folder: {output_folder}")
         
         # Start processing
-    process = multiprocessing.Process(target=run_process) #, args=(input_folder, output_folder)
-    process.start()
-    process.join()
-    # else:
-    #     print("No folders selected. Exiting application.")
+        process = multiprocessing.Process(target=run_process, args=(input_folder, output_folder)) #, 
+        process.start()
+        process.join()
+    else:
+        print("No folders selected. Exiting application.")
