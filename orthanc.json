@@ -1,0 +1,15 @@
+{
+    "Name": "MyOrthanc",
+    "StorageDirectory": "/dicom_outputs",
+    "IndexDirectory": "/var/lib/orthanc/db",
+    "IndexInMemory": false,
+    "DicomWeb": {
+        "Enable": true
+    },
+    "Plugins": [],
+    "LuaScripts": [],
+    "AutoImport": {
+        "Enable": true,
+        "IntervalSeconds": 10
+    }
+}

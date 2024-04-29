@@ -10,3 +10,4 @@ torchaudio==2.0.2
 nnunetv2==2.2.1
 MedProIO==0.1.1
 numpy==1.26.2
+pydicom==2.4.4

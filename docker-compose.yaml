@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  myapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./Pats:/Pats  # Input NIfTI files directory
+      - ./Outputs:/Outputs  # Output segmentations in NIfTI format
+      - ./dicom_outputs:/dicom_outputs  # Converted DICOM files
+    networks:
+      - app-network
+
+  orthanc:
+    image: orthancteam/orthanc:22.6.1
+    ports:
+      - "8042:8042"
+    volumes:
+      - ./dicom_outputs:/dicom_outputs  # Mount for DICOM files
+      - ./orthanc_db:/var/lib/orthanc/db 
+      - ./orthanc.json:/etc/orthanc/orthanc.json  # Mount custom config
+    environment:
+      - "ORTHANC__REGISTERED_USERS={\"admin\": \"admin\"}"
+    networks:
+      - app-network
+
+  ohif:
+    image: ohif/viewer:latest
+    ports:
+      - "3000:80"
+    environment:
+      - "ORTHANC_URL=http://orthanc:8042"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  data:
+  Outputs:
+  dicom_outputs:

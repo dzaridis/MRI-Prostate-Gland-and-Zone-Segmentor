@@ -3,7 +3,7 @@ from Utils import InputCheck
 #from flask import Flask, request, jsonify, render_template, jsonify, redirect, url_for
 from Utils import ImageProcessor
 import torch
-from Utils import helpers, nnUnet_call, segmentor_pipeline
+from Utils import helpers, nnUnet_call, segmentor_pipeline, N2D
 import SimpleITK as sitk
 from MedProIO import Coregistrator
 import numpy as np
@@ -38,6 +38,10 @@ def run_process(): #input_folder, output_folder
     except Exception as e:
         print ("ERROR IN THE POST PROCESS OF WG MASK, CHECK SEGMENTATION",e)
         pass
+    try:
+        N2D.converter()
+    except Exception as e:
+        print(e)
     print("Processing completed successfully!")
 
 if __name__ == '__main__':
