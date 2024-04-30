@@ -5,7 +5,6 @@ __pycache__/
 
 # nnU-Net model
 misc_files
-nnUnet_paths
 ProcancerPatients
 ProCancer-i-whitelist1.script
 
