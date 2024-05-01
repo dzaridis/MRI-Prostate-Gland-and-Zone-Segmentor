@@ -5,6 +5,14 @@ from pydicom import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, generate_uid, MRImageStorage
 import os
 import json
+from Utils.ImportDicomFiles import upload
+
+def post_orthanc(file):
+    
+    try:
+        upload(filename=file)
+    except:
+        pass
 
 
 def convert_nifti_to_dicom(nifti_path, output_folder, parent_folder, patient_id, study_instance_uid, series_instance_uid, accession_number, series_descriptor):
@@ -34,7 +42,9 @@ def convert_nifti_to_dicom(nifti_path, output_folder, parent_folder, patient_id,
         ds.SOPInstanceUID = generate_uid()
         ds.StudyDate = '20240101'  # Use appropriate date format
         ds.SeriesDate = '20240101'  # Use appropriate date format
-        ds.Modality = 'MR'
+        ds.Modality = 'SEG'
+        if "segm" not in series_descriptor:
+            ds.Modality = 'MR'
         ds.Manufacturer = 'Manufacturer'  # Optional: specify if known
 
         ds.SeriesDescription = series_descriptor
@@ -55,9 +65,11 @@ def convert_nifti_to_dicom(nifti_path, output_folder, parent_folder, patient_id,
 
         # Save DICOM file
         filename = os.path.join(output_folder, f'slice_{i:04d}.dcm')
-        fln = os.path.join(parent_folder,  f'{study_instance_uid}_{series_instance_uid}_slice_{i:04d}.dcm')
+        # fln = os.path.join(parent_folder,  f'{study_instance_uid}_{series_instance_uid}_slice_{i:04d}.dcm')
         pydicom.dcmwrite(filename, ds, write_like_original=False)
-        pydicom.dcmwrite(fln, ds, write_like_original=False)
+        # pydicom.dcmwrite(fln, ds, write_like_original=False)
+        # Send file to server
+        post_orthanc( filename )
 
 
 def converter():
@@ -76,18 +88,14 @@ def converter():
         wg_segm = v["wg_binary"]
         pz_segm = v["pz_binary"]
         tz_segm = v["tz_binary"]
-        try:
-            os.mkdir(os.path.join("dicom_outputs",k))
-        except:
-            pass
+
+        os.makedirs(os.path.join("dicom_outputs",k), exist_ok= True)
+
         save_folder = os.path.join("dicom_outputs",k)
-        try:
-            os.mkdir(os.path.join(save_folder,"t2_weighted"))
-            os.mkdir(os.path.join(save_folder,"prostate"))
-            os.mkdir(os.path.join(save_folder,"peripheral"))
-            os.mkdir(os.path.join(save_folder,"transition"))
-        except:
-            pass
+        
+        for key in ["t2_weighted", "prostate", "peripheral","transition"]:
+            os.makedirs(os.path.join(save_folder, key), exist_ok= True)
+
         save_folder_or = os.path.join(save_folder,"t2_weighted")
         save_folder_wg = os.path.join(save_folder,"prostate")
         save_folder_pz = os.path.join(save_folder,"peripheral")
