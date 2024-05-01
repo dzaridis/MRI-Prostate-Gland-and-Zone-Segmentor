@@ -11,3 +11,5 @@ nnunetv2==2.2.1
 MedProIO==0.1.1
 numpy==1.26.2
 pydicom==2.4.4
+pybase64
+httplib2

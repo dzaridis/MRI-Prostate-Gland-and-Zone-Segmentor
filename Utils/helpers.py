@@ -42,6 +42,7 @@ def initial_processing(pats:dict):
         processed = ImageProcessor.ImageProcessing(val)
         pats_for_wg.update({key:processed})
 
+    os.makedirs( os.path.join('Dataset016_WgSegmentationPNetAndPicai', 'ImagesTs'), exist_ok=True)
     for k,v in pats_for_wg.items():
         sitk.WriteImage(v, os.path.join(nnUNet_raw, os.path.join(os.path.join('Dataset016_WgSegmentationPNetAndPicai', 'ImagesTs'), f"ProstateWG_{k}_0000.nii.gz")))   
     return pats_for_wg
@@ -100,6 +101,7 @@ class ImageProcessorClass:
 
                 self.wg_dict_original[key] = output_paths["Original"]
                 self.wg_dict_resampled[key] = output_paths["Resampled"]
+                os.makedirs(os.path.join('Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs'), exist_ok= True )
                 sitk.WriteImage(filtered_ser, os.path.join(nnUNet_raw, os.path.join(os.path.join('Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs'), f"ProstateZonesFilteredLessDilated_ProstateZones_{key}_0000.nii.gz")))
 
             except Exception as e:

@@ -1,43 +1,54 @@
+# REF: https://github.com/hyper4saken/ohif-orthanc
 version: '3.8'
 services:
-  myapp:
+  orthanc_server:
+    container_name: orthanc
+    image: jodogne/orthanc-plugins
+    # image: orthancteam/orthanc:22.6.1
+    tty: true
+    stdin_open: true
+    ports:
+      - 8042:8042
+      - 4242:4242
+    volumes:
+      - ./orthanc.json:/etc/orthanc/orthanc.json:ro
+      - ./orthanc_db:/var/lib/orthanc/db/
+    restart: always
+    networks:
+      - pacs
+
+  ohif_viewer:
+    container_name: ohif
+    image: ohif/viewer
+    ports:
+      - 3000:80
+    environment:
+      - APP_CONFIG:/usr/share/nginx/html/app-config.js
+    volumes:
+      - ./nginx_ohif.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ohif.js:/usr/share/nginx/html/app-config.js:ro
+      - ./logo.png:/usr/share/nginx/html/logo.png:ro
+    restart: always
+    networks:
+      - pacs
+
+  zone_segmentation:
+    container_name: zone_segment
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+    - orthanc.env
     volumes:
       - ./Pats:/Pats  # Input NIfTI files directory
-      - ./Outputs:/Outputs  # Output segmentations in NIfTI format
+      - ./Outputs:/Outputs  # Output segments in NIfTI format
       - ./dicom_outputs:/dicom_outputs  # Converted DICOM files
     networks:
-      - app-network
-
-  orthanc:
-    image: orthancteam/orthanc:22.6.1
-    ports:
-      - "8042:8042"
-    volumes:
-      - ./dicom_outputs:/dicom_outputs  # Mount for DICOM files
-      - ./orthanc_db:/var/lib/orthanc/db 
-      - ./orthanc.json:/etc/orthanc/orthanc.json  # Mount custom config
-    environment:
-      - "ORTHANC__REGISTERED_USERS={\"admin\": \"admin\"}"
-    networks:
-      - app-network
-
-  ohif:
-    image: ohif/viewer:latest
-    ports:
-      - "3000:80"
-    environment:
-      - "ORTHANC_URL=http://orthanc:8042"
-    networks:
-      - app-network
+      - pacs
 
 networks:
-  app-network:
+  pacs:
     driver: bridge
 
 volumes:
-  data:
-  Outputs:
-  dicom_outputs:
+  orthanc_db:
