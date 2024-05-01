@@ -9,12 +9,12 @@
 ```Bash
 docker compose up --build
 ```
-1. You need to have 3 Folders in the parent folder which is the project
-   a. "Pats": There the T2-weighted NIfTI files are stored. Ideally you wish the name of each NIfTI to be the patient's ID
-   b. "Outputs": The output masks are stored there as described in the "he structure of the outcome is the following" section
-   c. "dicom_outputs": This is where all the dicom outputs are persisted for orthanc to read them and visualize them via OHIF viewer
-- You can find the Orthanc DICOM server at [localhost.8042](http://localhost:8042/)
-- You can find the OHIF DICOM Viewer at [localhost.3000](http://localhost:3000/)
+1. You need to have 3 Folders in the parent folder which is the project  
+   a. "Pats": There the T2-weighted NIfTI files are stored. Ideally you wish the name of each NIfTI to be the patient's ID  
+   b. "Outputs": The output masks are stored there as described in the "he structure of the outcome is the following" section  
+   c. "dicom_outputs": This is where all the dicom outputs are persisted for orthanc to read them and visualize them via OHIF viewer  
+- You can find the Orthanc DICOM server at [localhost.8042](http://localhost:8042/)  
+- You can find the OHIF DICOM Viewer at [localhost.3000](http://localhost:3000/)  
 
 ## DesktopAPP  
 
