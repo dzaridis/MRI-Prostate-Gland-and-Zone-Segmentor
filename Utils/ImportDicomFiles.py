@@ -75,7 +75,7 @@ def UploadFile(
     except:
         sys.stdout.write(" => unable to connect (Is Orthanc running? Is there a password?)\n")
 
-def upload(
+def _upload(
         ip:str=None,
         port:int=None,
         user:str=None,
@@ -104,6 +104,20 @@ def upload(
         for file in os.listdir(filename):
             if file.endswith(".dcm"):
                 UploadFile(os.path.join(filename, file),ip,port,user,password)
-            
 
-    print("\nSummary: %d DICOM file(s) have been imported" % SUCCESS)
+    print(f"\nSummary: {SUCCESS} DICOM file(s) have been imported")
+
+def upload(
+        dirname:str=None,
+    )->None:
+    '''
+    Uploads all dcm files inside a given directory, recursive.
+    Must have .dcm at the end.
+    '''
+    for dirs,_,files in os.walk(dirname):
+
+        for file in files:
+            if file.endswith(".dcm"):
+                _upload(
+                    filename= os.path.join(dirs,file)
+                )

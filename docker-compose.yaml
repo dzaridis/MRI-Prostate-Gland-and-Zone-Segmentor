@@ -3,10 +3,9 @@ version: '3.8'
 services:
   orthanc_server:
     container_name: orthanc
+    # still no luck :-(
+    # image: orthancteam/orthanc:22.6.1 
     image: jodogne/orthanc-plugins
-    # image: orthancteam/orthanc:22.6.1
-    tty: true
-    stdin_open: true
     ports:
       - 8042:8042
       - 4242:4242
@@ -19,7 +18,7 @@ services:
 
   ohif_viewer:
     container_name: ohif
-    image: ohif/viewer
+    image: ohif/app
     ports:
       - 3000:80
     environment:

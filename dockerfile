@@ -39,7 +39,7 @@ ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 RUN pyenv install 3.9.18 && pyenv global 3.9.18
 
 # Upgrade pip
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
 # Set the working directory in the container to root
 WORKDIR /
@@ -48,7 +48,8 @@ WORKDIR /
 COPY . .
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Define mountable directories
 VOLUME ["/Pats", "/Outputs", "/dicom_outputs"]
