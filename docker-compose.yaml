@@ -1,5 +1,4 @@
 # REF: https://github.com/hyper4saken/ohif-orthanc
-version: '3.8'
 services:
   orthanc_server:
     container_name: orthanc
@@ -7,7 +6,7 @@ services:
     # image: orthancteam/orthanc:22.6.1 
     image: jodogne/orthanc-plugins
     ports:
-      - 9000:8042
+      - 8042:8042
       - 4242:4242
     volumes:
       - ./orthanc.json:/etc/orthanc/orthanc.json:ro
@@ -47,7 +46,6 @@ services:
 
 networks:
   pacs:
-    driver: bridge
 
 volumes:
   orthanc_db:
