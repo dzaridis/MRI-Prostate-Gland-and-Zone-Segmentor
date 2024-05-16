@@ -49,7 +49,7 @@ if __name__ == '__main__':
     if os.path.exists("Pats/_gen_dicom2nifti"):
         shutil.rmtree("Pats/_gen_dicom2nifti")
 
-    pat_list = get_images( INPUT_VOLUME )
+    pat_list = get_images( INPUT_VOLUME ) # .dcm 2 nifti or NifTi files instanly
     process = multiprocessing.Process(
         target=run_process,kwargs={"patient_list":pat_list}
     )
