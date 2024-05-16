@@ -69,7 +69,7 @@ def convert_nifti_to_dicom(nifti_path, output_folder, parent_folder, patient_id,
         pydicom.dcmwrite(filename, ds, write_like_original=False)
         # pydicom.dcmwrite(fln, ds, write_like_original=False)
         # Send file to server
-        post_orthanc( filename )
+        # post_orthanc( filename )
 
 
 def converter():
@@ -92,7 +92,7 @@ def converter():
         os.makedirs(os.path.join("dicom_outputs",k), exist_ok= True)
 
         save_folder = os.path.join("dicom_outputs",k)
-        
+
         for key in ["t2_weighted", "prostate", "peripheral","transition"]:
             os.makedirs(os.path.join(save_folder, key), exist_ok= True)
 

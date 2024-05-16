@@ -1,61 +1,61 @@
+'''
+Main component for prostate zone (WG,PZ,TZ) segmentation, data transformation(dcm->nii, nii->dcm),
+and uploading results to an orthanc server + ohif viewer server.
+'''
 import os
-from Utils import InputCheck
-#from flask import Flask, request, jsonify, render_template, jsonify, redirect, url_for
-from Utils import ImageProcessor
-import torch
-from Utils import helpers, nnUnet_call, segmentor_pipeline, N2D
-import SimpleITK as sitk
-from MedProIO import Coregistrator
-import numpy as np
-import json
+import shutil
 import warnings
 import multiprocessing
-warnings.filterwarnings('ignore')
 import logging
-# import tkinter as tk
-# from tkinter import filedialog
+from Utils import helpers, segmentor_pipeline, InputCheck
+from Utils.get_images import get_images
+from Utils.nifti2dicom_convert import converter
+from Utils.ImportDicomFiles import upload
+warnings.filterwarnings('ignore')
 
-# def select_folder(prompt):
-#     root = tk.Tk()docker
-#     root.withdraw()  # Hide the main window
-#     folder_path = filedialog.askdirectory(title=prompt)
-#     root.destroy()
-#     return folder_path
+INPUT_VOLUME = "Pats"
+OUTPUT_VOLUME = "Outputs"
 
-def run_process(): #input_folder, output_folder
+def run_process(patient_list:str): #input_folder, output_folder
+    ''' Creates zone segmentation for the given data via trained NNUnet '''
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    INPUT_VOLUME = "Pats"
-    OUTPUT_VOLUME = "Outputs"
-    pats = InputCheck.load_nii_gz_files(INPUT_VOLUME) # loads files
+
+    pats = InputCheck.load_nii_gz_files(patient_list) # loads files
+
     try:
-        segmentor_pipeline.segmentor_pipeline_operation(output_volume=OUTPUT_VOLUME, pats=pats) # perform segmentation operations
+        # perform segmentation operations
+        segmentor_pipeline.segmentor_pipeline_operation(
+            output_volume=OUTPUT_VOLUME, pats=pats
+        )
+
     except Exception as e:
-        with open(os.path.join(OUTPUT_VOLUME,'error_log.txt'), 'a') as f:  # Open file in append mode
+         # Open file in append mode
+        with open(os.path.join(OUTPUT_VOLUME,'error_log.txt'), 'a') as f: 
             f.write(f"An error occurred: {str(e)}\n")
-            pass
+
     try:
-        helpers.process_masks(out_volume=OUTPUT_VOLUME) # post process masks, filling holes for WG and TZ when necessary
+        # post process masks, filling holes for WG and TZ when necessary
+        helpers.process_masks(out_volume=OUTPUT_VOLUME) 
+
     except Exception as e:
         print ("ERROR IN THE POST PROCESS OF WG MASK, CHECK SEGMENTATION",e)
-        pass
-    try:
-        N2D.converter()
-    except Exception as e:
-        print(e)
-    print("Processing completed successfully!")
 
 if __name__ == '__main__':
-    # input_folder = select_folder("Select Input Folder")
-    # output_folder = select_folder("Select Output Folder")
 
-    # if input_folder and output_folder:
-    #     # Here you might want to confirm the selections or start processing immediately
-    #     print(f"Selected input folder: {input_folder}")
-    #     print(f"Selected output folder: {output_folder}")
-        
-        # Start processing
-    process = multiprocessing.Process(target=run_process) #, args=(input_folder, output_folder)
+    for x in os.listdir("dicom_outputs"):
+        if x != '.gitkeep':
+            shutil.rmtree( os.path.join("dicom_outputs",x))
+
+    if os.path.exists("Pats/_gen_dicom2nifti"):
+        shutil.rmtree("Pats/_gen_dicom2nifti")
+
+    pat_list = get_images( INPUT_VOLUME )
+    process = multiprocessing.Process(
+        target=run_process,kwargs={"patient_list":pat_list}
+    )
     process.start()
     process.join()
-    # else:
-    #     print("No folders selected. Exiting application.")
+
+    converter()
+    upload("dicom_outputs")
+    shutil.rmtree("Pats/_gen_dicom2nifti")
