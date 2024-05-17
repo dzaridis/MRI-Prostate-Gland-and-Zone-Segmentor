@@ -393,12 +393,11 @@ def nifti2dicomseg(seg_dir_path:Path, t2_path:Path, single_seg:str=""):
 
     modification_time = time.strftime("%H%M%S")
     modification_date = time.strftime("%Y%m%d")
-    temp_prefix = "2.8.846.0."+modification_date+".1."+modification_time+'.'
 
     meta = Dataset()
     meta.MediaStorageSOPClassUID = SegmentationStorage
-    sop_instance_uid = generate_uid(temp_prefix)
-    implementation = generate_uid(temp_prefix)
+    sop_instance_uid = generate_uid()
+    implementation = generate_uid()
     meta.MediaStorageSOPInstanceUID = sop_instance_uid
     meta.TransferSyntaxUID = ExplicitVRLittleEndian
     meta.ImplementationClassUID = implementation
@@ -423,12 +422,12 @@ def nifti2dicomseg(seg_dir_path:Path, t2_path:Path, single_seg:str=""):
     seg_ds.DeviceSerialNumber = '1'
     seg_ds.SoftwareVersions = '0'
     seg_ds.ContentQualification = 'RESEARCH'
-    seg_ds.SeriesInstanceUID = generate_uid(temp_prefix)
+    seg_ds.SeriesInstanceUID = generate_uid()
 
     if "FrameOfReferenceUID" in t2_ds:
         seg_ds.FrameOfReferenceUID = t2_ds.FrameOfReferenceUID
     else:
-        seg_ds.FrameOfReferenceUID = generate_uid(temp_prefix)
+        seg_ds.FrameOfReferenceUID = generate_uid()
 
     seg_ds.PositionReferenceIndicator = ''
     seg_ds.SamplesPerPixel  = 1
