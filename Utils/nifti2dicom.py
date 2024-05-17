@@ -27,14 +27,12 @@ def nifti2dicom( nifti_path:Path):
     # Copy relevant tags from the original meta-data dictionary (private tags are
     # also accessible).
     # random prefix id
-    modification_time = time.strftime("%H%M%S")
-    modification_date = time.strftime("%Y%m%d")
+
     # prefix normally is related to the organization ID (e.g. OID, OMG)
-    temp_prefix = "2.8.846.0."+modification_date+".1."+modification_time+'.'
-    patient_id = generate_uid(temp_prefix)
-    study_id = generate_uid(temp_prefix)
-    series_id = generate_uid(temp_prefix)
-    sop_uid = generate_uid(temp_prefix)
+    patient_id = generate_uid()
+    study_id = generate_uid()
+    series_id = generate_uid()
+    sop_uid = generate_uid()
 
     modification_time = time.strftime("%H%M%S")
     modification_date = time.strftime("%Y%m%d")
@@ -72,7 +70,7 @@ def nifti2dicom( nifti_path:Path):
         "0020|000d":study_id,  # Study Instance UID, for machine consumption
         "0020|0010":study_id,  # Study ID, for human consumption
         "0020|000e":series_id, # Series Instance UID
-        "0020|0052":generate_uid(temp_prefix), # Frame of Reference UID
+        "0020|0052":generate_uid(), # Frame of Reference UID
         "0020|0011":"3", # Series Number
         "0020|0013":"0", # Instance Number
         "0008|0020":modification_date, # Study Date
