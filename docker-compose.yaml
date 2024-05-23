@@ -23,8 +23,8 @@ services:
     environment:
       - APP_CONFIG:/usr/share/nginx/html/app-config.js
     volumes:
-      - ./nginx_ohif.conf:/etc/nginx/conf.d/default.conf
-      - ./ohif.js:/usr/share/nginx/html/app-config.js
+      - ./nginx_ohif.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ohif.js:/usr/share/nginx/html/app-config.js:ro
       - ./Materials/logo.png:/usr/share/nginx/html/logo.png
     restart: always
     networks:
