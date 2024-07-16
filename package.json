@@ -1,0 +1,38 @@
+{
+    "name": "ZoneSegmentationTool",
+    "version": "1.0.0",
+    "description": "Electron app for zone segmentation using Docker Compose",
+    "main": "src/main.js",
+    "scripts": {
+      "start": "electron .",
+      "package-win": "electron-builder --win"
+    },
+    "author": "Your Name",
+    "license": "MIT",
+    "devDependencies": {
+      "electron": "^23.1.1",
+      "electron-builder": "^23.0.0"
+    },
+    "build": {
+      "appId": "com.example.zonesegmentationtool",
+      "files": [
+        "src/**/*",
+        "docker-compose.yml",
+        "orthanc.json",
+        "orthanc.env",
+        "nginx_ohif.conf",
+        "ohif.js",
+        "Materials/**/*"
+      ],
+      "extraResources": [
+        "Pats",
+        "Outputs",
+        "dicom_outputs"
+      ],
+      "win": {
+        "target": "nsis",
+        "artifactName": "${productName}-Setup-${version}.${ext}"
+      }
+    }
+  }
+  

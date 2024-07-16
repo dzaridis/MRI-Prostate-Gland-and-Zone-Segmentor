@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zone Segmentation Tool</title>
+</head>
+<body>
+    <h1>Zone Segmentation Tool</h1>
+    <button id="selectInputDir">Select Input Directory</button>
+    <span id="inputDirPath"></span>
+    <br><br>
+    <button id="selectOutputDir">Select Output Directory</button>
+    <span id="outputDirPath"></span>
+    <br><br>
+    <button id="selectDicomOutputDir">Select DICOM Output Directory</button>
+    <span id="dicomOutputDirPath"></span>
+    <br><br>
+    <button id="runTool">Run Tool</button>
+    <br><br>
+    <button id="openOutputFolder" style="display: none;">Open Output Folder</button>
+    <button id="openOhifViewer" style="display: none;">Open OHIF Viewer</button>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        let inputDir = '';
+        let outputDir = '';
+        let dicomOutputDir = '';
+
+        document.getElementById('selectInputDir').addEventListener('click', async () => {
+            inputDir = await ipcRenderer.invoke('select-directory');
+            document.getElementById('inputDirPath').innerText = inputDir;
+        });
+
+        document.getElementById('selectOutputDir').addEventListener('click', async () => {
+            outputDir = await ipcRenderer.invoke('select-directory');
+            document.getElementById('outputDirPath').innerText = outputDir;
+        });
+
+        document.getElementById('selectDicomOutputDir').addEventListener('click', async () => {
+            dicomOutputDir = await ipcRenderer.invoke('select-directory');
+            document.getElementById('dicomOutputDirPath').innerText = dicomOutputDir;
+        });
+
+        document.getElementById('runTool').addEventListener('click', async () => {
+            await ipcRenderer.invoke('start-docker-compose', inputDir, outputDir, dicomOutputDir);
+            document.getElementById('openOutputFolder').style.display = 'block';
+            document.getElementById('openOhifViewer').style.display = 'block';
+        });
+
+        document.getElementById('openOutputFolder').addEventListener('click', () => {
+            ipcRenderer.invoke('open-output-folder', outputDir);
+        });
+
+        document.getElementById('openOhifViewer').addEventListener('click', () => {
+            ipcRenderer.invoke('open-ohif-viewer');
+        });
+    </script>
+</body>
+</html>

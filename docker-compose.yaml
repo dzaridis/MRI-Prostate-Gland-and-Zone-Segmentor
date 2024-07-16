@@ -38,9 +38,9 @@ services:
     env_file:
     - orthanc.env
     volumes:
-      - ./Pats:/Pats  # Input NIfTI files directory
-      - ./Outputs:/Outputs  # Output segments in NIfTI format
-      - ./dicom_outputs:/dicom_outputs  # Converted DICOM files
+      - ${INPUT_FOLDER}:/Pats  # Input NIfTI files directory
+      - ${OUTPUT_FOLDER}:/Outputs  # Output segments in NIfTI format
+      - ${DICOM_OUTPUT_FOLDER}:/dicom_outputs  # Converted DICOM files
     networks:
       - pacs
 
