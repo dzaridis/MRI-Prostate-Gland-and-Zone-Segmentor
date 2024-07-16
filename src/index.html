@@ -1,23 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zone Segmentation Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        .button:disabled {
+            background-color: #cccccc;
+        }
+        .path {
+            margin: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+        .loading {
+            display: none;
+            margin: 20px;
+        }
+        #result {
+            display: none;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        #result p {
+            margin: 10px 0;
+        }
+        #header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        #header img {
+            height: 200px;
+            width: 150px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Zone Segmentation Tool</h1>
-    <button id="selectInputDir">Select Input Directory</button>
-    <span id="inputDirPath"></span>
-    <br><br>
-    <button id="selectOutputDir">Select Output Directory</button>
-    <span id="outputDirPath"></span>
-    <br><br>
-    <button id="selectDicomOutputDir">Select DICOM Output Directory</button>
-    <span id="dicomOutputDirPath"></span>
-    <br><br>
-    <button id="runTool">Run Tool</button>
-    <br><br>
-    <button id="openOutputFolder" style="display: none;">Open Output Folder</button>
-    <button id="openOhifViewer" style="display: none;">Open OHIF Viewer</button>
+    <div id="header">
+        <img src="forth.png" alt="Forth Logo">
+        <img src="Medlab.png" alt="Medlab Logo">
+        <img src="cnr.png" alt="CNR Logo">
+    </div>
+    <h1>Prostate Anatomies Automatic Segmentation Tool</h1>
+    <button id="selectInputDir" class="button">Select Input Directory</button>
+    <span id="inputDirPath" class="path"></span>
+    <br>
+    <button id="selectOutputDir" class="button">Select Output Directory</button>
+    <span id="outputDirPath" class="path"></span>
+    <br>
+    <button id="selectDicomOutputDir" class="button">Select DICOM Output Directory</button>
+    <span id="dicomOutputDirPath" class="path"></span>
+    <br>
+    <button id="runTool" class="button">Run Tool</button>
+    <br>
+    <img id="loadingGif" class="loading" src="loading.gif" alt="Loading...">
+    <div id="result">
+        <p>Segmentation complete.</p>
+        <button id="openOutputFolder" class="button">Open Output Folder</button>
+        <button id="openOhifViewer" class="button">Open Viewer</button>
+    </div>
 
     <script>
         const { ipcRenderer } = require('electron');
@@ -41,9 +108,13 @@
         });
 
         document.getElementById('runTool').addEventListener('click', async () => {
+            document.getElementById('loadingGif').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
             await ipcRenderer.invoke('start-docker-compose', inputDir, outputDir, dicomOutputDir);
-            document.getElementById('openOutputFolder').style.display = 'block';
-            document.getElementById('openOhifViewer').style.display = 'block';
+            ipcRenderer.invoke('wait-for-segmentation').then(() => {
+                document.getElementById('loadingGif').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+            });
         });
 
         document.getElementById('openOutputFolder').addEventListener('click', () => {

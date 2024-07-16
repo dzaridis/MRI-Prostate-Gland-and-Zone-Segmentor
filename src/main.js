@@ -1,8 +1,10 @@
 const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
-const { exec } = require('child_process');
+const fs = require('fs');
+const { exec, execSync } = require('child_process');
 
 let mainWindow;
+const dockerComposePath = path.join(__dirname, 'docker-compose.yml');
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -27,7 +29,6 @@ ipcMain.handle('select-directory', async (event) => {
 });
 
 ipcMain.handle('start-docker-compose', (event, inputDir, outputDir, dicomOutputDir) => {
-    const dockerComposePath = path.join(__dirname, '../docker-compose.yml');
     const env = {
         ...process.env,
         INPUT_FOLDER: inputDir.replace(/\\/g, '/'),
@@ -41,6 +42,26 @@ ipcMain.handle('start-docker-compose', (event, inputDir, outputDir, dicomOutputD
         } else {
             console.log(`Docker Compose started: ${stdout}`);
         }
+    });
+});
+
+ipcMain.handle('wait-for-segmentation', (event) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const interval = setInterval(() => {
+                try {
+                    const result = execSync('docker ps --filter "name=zone_segment" --format "{{.Status}}"').toString().trim();
+                    if (!result) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                } catch (error) {
+                    console.error(`Error checking container status: ${error.message}`);
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 30000); // Check every 30 seconds
+        }, 10000); // Initial delay of 10 seconds
     });
 });
 
