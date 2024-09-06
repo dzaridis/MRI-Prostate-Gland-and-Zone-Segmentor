@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.zip
+DEMO
 # nnU-Net model
 misc_files
 ProcancerPatients

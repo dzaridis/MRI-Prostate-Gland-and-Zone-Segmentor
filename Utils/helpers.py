@@ -39,8 +39,11 @@ def initial_processing(pats:dict):
     """
     pats_for_wg = {}
     for key,val in pats.items():
-        processed = ImageProcessor.ImageProcessing(val)
-        pats_for_wg.update({key:processed})
+        try:
+            processed = ImageProcessor.ImageProcessing(val)
+            pats_for_wg.update({key:processed})
+        except:
+            continue
 
     os.makedirs( os.path.join('Dataset016_WgSegmentationPNetAndPicai', 'ImagesTs'), exist_ok=True)
     for k,v in pats_for_wg.items():
@@ -53,36 +56,55 @@ class ImageProcessorClass:
         self.nnUNet_raw = nnUNet_raw
         self.wg_dict_original = {}
         self.wg_dict_resampled = {}
+        self.failed_patients = {}
         self.setup_logging()
 
     def setup_logging(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        self.logger = logging.getLogger(__name__)
+        file_handler = logging.FileHandler(os.path.join(self.base_output_path, 'processing_log.txt'))
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.logger.addHandler(file_handler)
 
     def create_directories(self, key):
         try:
             os.makedirs(os.path.join(self.base_output_path, key, "Resampled"), exist_ok=True)
             os.makedirs(os.path.join(self.base_output_path, key, "Original"), exist_ok=True)
         except OSError as e:
-            logging.error(f"Error creating directories for {key}: {e}")
+            self.logger.error(f"Error creating directories for {key}: {e}")
             raise
 
     def process_images(self, pats_for_wg_inference, pats_for_wg, pats):
         for key, val in pats_for_wg_inference.items():
             try:
-                wg_binary = sitk.ReadImage(val["binary"])
-                self.create_directories(key)
-                wg_binary = ImageProcessor.process_mask(wg_binary)
-                wg_binary = ImageProcessor.remove_small_components(wg_binary)
+                self.logger.info(f"Processing patient {key}")
 
-                filtered_ser = ImageProcessor.filter_ser(pats_for_wg[key], ImageProcessor.mask_dilation(wg_binary))
+                # Read and process whole gland binary
+                wg_binary = sitk.ReadImage(val["binary"])
                 probs = np.load(val["probs"])["probabilities"]
                 wg_probs = probs[1, :, :, :]
+                wg_binary_fixed = np.where(wg_probs > 0.95, 1, 0)
                 wg_probs = sitk.GetImageFromArray(wg_probs)
+                wg_binary_fixed = sitk.GetImageFromArray(wg_binary_fixed)
                 wg_probs.CopyInformation(wg_binary)
+                wg_binary_fixed.CopyInformation(wg_binary)
+                self.create_directories(key)
 
+                wg_binary = ImageProcessor.process_mask(wg_binary_fixed)
+                try:
+                    wg_binary_sc = ImageProcessor.remove_small_components(wg_binary)
+                    if np.sum(sitk.GetArrayFromImage(wg_binary_sc)) < 5000:
+                        raise TypeError("All components were removed.")
+                    wg_binary = wg_binary_sc
+                except TypeError as e:
+                    self.logger.warning(f"Small component removal failed for {key}: {e}")
+
+                # Filter and resample
+                filtered_ser = ImageProcessor.filter_ser(pats_for_wg[key], ImageProcessor.mask_dilation(wg_binary))
                 wg_binary_resampled = sitk.Resample(wg_binary, pats[key], sitk.Transform(), sitk.sitkNearestNeighbor)
                 wg_probs_resampled = sitk.Resample(wg_probs, pats[key], sitk.Transform(), sitk.sitkNearestNeighbor)
 
+                # Generate output paths
                 output_paths = {
                     "Original": {
                         "wg_binary": os.path.join(self.base_output_path, key, "Original", "wg_binary.nii.gz"),
@@ -94,6 +116,7 @@ class ImageProcessorClass:
                     }
                 }
 
+                # Write images
                 self.write_image(wg_binary_resampled, output_paths["Resampled"]["wg_binary"])
                 self.write_image(wg_probs_resampled, output_paths["Resampled"]["wg_probs"])
                 self.write_image(wg_binary, output_paths["Original"]["wg_binary"])
@@ -101,20 +124,38 @@ class ImageProcessorClass:
 
                 self.wg_dict_original[key] = output_paths["Original"]
                 self.wg_dict_resampled[key] = output_paths["Resampled"]
-                os.makedirs(os.path.join('Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs'), exist_ok= True )
-                sitk.WriteImage(filtered_ser, os.path.join(nnUNet_raw, os.path.join(os.path.join('Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs'), f"ProstateZonesFilteredLessDilated_ProstateZones_{key}_0000.nii.gz")))
+
+                # Write filtered series
+                os.makedirs(os.path.join('Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs'), exist_ok=True)
+                sitk.WriteImage(filtered_ser, os.path.join(self.nnUNet_raw, 'Dataset019_ProstateZonesSegmentationWgFilteredLessDilated', 'ImagesTs', f"ProstateZonesFilteredLessDilated_ProstateZones_{key}_0000.nii.gz"))
+
+                self.logger.info(f"Successfully processed patient {key}")
 
             except Exception as e:
-                logging.error(f"Error processing {key}: {e}")
+                self.logger.error(f"Error processing patient {key}: {e}")
+                self.failed_patients[key] = str(e)
+                continue
 
     def write_image(self, image, path):
         try:
             sitk.WriteImage(image, path)
         except Exception as e:
-            logging.error(f"Error writing image to {path}: {e}")
-    
+            self.logger.error(f"Error writing image to {path}: {e}")
+            raise
+
     def get_paths(self):
         return self.wg_dict_original, self.wg_dict_resampled
+
+    def log_failed_patients(self):
+        if self.failed_patients:
+            self.logger.warning("The following patients failed processing:")
+            for patient, error in self.failed_patients.items():
+                self.logger.warning(f"Patient {patient}: {error}")
+            
+            with open(os.path.join(self.base_output_path, "failed_patients.json"), "w") as f:
+                json.dump(self.failed_patients, f, indent=4)
+        else:
+            self.logger.info("All patients processed successfully.")
 
 class ZoneProcessor:
     def __init__(self, base_output_path):
@@ -181,13 +222,15 @@ class ZoneProcessor:
                 self.original[key] = original_paths
 
             except Exception as e:
-                logging.error(f"Error processing {key}: {e}")
+                #logging.error(f"Error processing {key}: {e}")
+                continue
 
     def write_image(self, image, path):
         try:
             sitk.WriteImage(image, path)
         except Exception as e:
-            logging.error(f"Error writing image to {path}: {e}")
+            #logging.error(f"Error writing image to {path}: {e}")
+            pass
     
     def get_paths(self):
         return self.original, self.resampled
@@ -269,12 +312,15 @@ class MaskPostProcessor:
 
     def batch_post_process(self):
         for k,v in self.images.items():
-            image_wg= sitk.ReadImage(v["wg_binary"])
-            image_pz= sitk.ReadImage(v["pz_binary"])
-            image_tz= sitk.ReadImage(v["tz_binary"])
-            combined_mask = sitk.Or(image_wg, image_pz)
-            combined_mask = sitk.Or(combined_mask, image_tz)
-            sitk.WriteImage(combined_mask, v["wg_binary"])
+            try:
+                image_wg= sitk.ReadImage(v["wg_binary"])
+                image_pz= sitk.ReadImage(v["pz_binary"])
+                image_tz= sitk.ReadImage(v["tz_binary"])
+                combined_mask = sitk.Or(image_wg, image_pz)
+                combined_mask = sitk.Or(combined_mask, image_tz)
+                sitk.WriteImage(combined_mask, v["wg_binary"])
+            except:
+                continue
 
 
 def process_masks(out_volume:str):

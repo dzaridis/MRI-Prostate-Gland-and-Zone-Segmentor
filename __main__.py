@@ -16,11 +16,11 @@ warnings.filterwarnings('ignore')
 INPUT_VOLUME = "Pats"
 OUTPUT_VOLUME = "Outputs"
 
-def run_process(patient_list:str): #input_folder, output_folder
+def run_process(): #input_folder, output_folder
     ''' Creates zone segmentation for the given data via trained NNUnet '''
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    pats = InputCheck.load_nii_gz_files(patient_list) # loads files
+    pats = InputCheck.load_nii_gz_files(INPUT_VOLUME) # loads files
 
     try:
         # perform segmentation operations
@@ -42,20 +42,8 @@ def run_process(patient_list:str): #input_folder, output_folder
 
 if __name__ == '__main__':
 
-    for x in os.listdir("dicom_outputs"):
-        if x != '.gitkeep':
-            shutil.rmtree( os.path.join("dicom_outputs",x))
-
-    if os.path.exists("Pats/_gen_dicom2nifti"):
-        shutil.rmtree("Pats/_gen_dicom2nifti")
-
-    pat_list = get_images( INPUT_VOLUME ) # .dcm 2 nifti or NifTi files instanly
     process = multiprocessing.Process(
-        target=run_process,kwargs={"patient_list":pat_list}
+        target=run_process
     )
     process.start()
     process.join()
-
-    converter()
-    upload("dicom_outputs")
-    shutil.rmtree("Pats/_gen_dicom2nifti")
