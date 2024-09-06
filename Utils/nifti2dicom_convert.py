@@ -6,7 +6,7 @@ from pydicom import dcmread
 from Utils.nifti2dicomseg import nifti2dicomseg
 from Utils.nifti2dicom import nifti2dicom
 
-SEG_OUTPUT = "Outputs"
+SEG_OUTPUT = "output"
 CATEGORY = "Resampled"
 
 
@@ -49,7 +49,7 @@ def converter():
             study_id = temp_dcm.StudyInstanceUID
 
             copy_t2 = os.path.join(
-                "dicom_outputs",
+                "output",
                 pat_id,
                 study_id,
                 "t2w"

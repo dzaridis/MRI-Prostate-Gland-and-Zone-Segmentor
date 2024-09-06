@@ -11,10 +11,11 @@ from Utils import helpers, segmentor_pipeline, InputCheck
 from Utils.get_images import get_images
 from Utils.nifti2dicom_convert import converter
 from Utils.ImportDicomFiles import upload
+from Utils.procancer_outputs import cleanup_dicom_output, cleanup_output_folder
 warnings.filterwarnings('ignore')
 
 INPUT_VOLUME = "Pats"
-OUTPUT_VOLUME = "Outputs"
+OUTPUT_VOLUME = "output"
 
 def run_process(patient_list:str): #input_folder, output_folder
     ''' Creates zone segmentation for the given data via trained NNUnet '''
@@ -29,7 +30,7 @@ def run_process(patient_list:str): #input_folder, output_folder
         )
 
     except Exception as e:
-         # Open file in append mode
+        # Open file in append mode
         with open(os.path.join(OUTPUT_VOLUME,'error_log.txt'), 'a') as f: 
             f.write(f"An error occurred: {str(e)}\n")
 
@@ -42,9 +43,9 @@ def run_process(patient_list:str): #input_folder, output_folder
 
 if __name__ == '__main__':
 
-    for x in os.listdir("dicom_outputs"):
+    for x in os.listdir("output"):
         if x != '.gitkeep':
-            shutil.rmtree( os.path.join("dicom_outputs",x))
+            shutil.rmtree( os.path.join("output",x))
 
     if os.path.exists("Pats/_gen_dicom2nifti"):
         shutil.rmtree("Pats/_gen_dicom2nifti")
@@ -57,5 +58,8 @@ if __name__ == '__main__':
     process.join()
 
     converter()
-    upload("dicom_outputs")
+    cleanup_dicom_output("output")
+    cleanup_output_folder("output")
+    os.remove(os.path.join(INPUT_VOLUME,"patient_dict.yaml"))
+    #upload("dicom_outputs")
     shutil.rmtree("Pats/_gen_dicom2nifti")

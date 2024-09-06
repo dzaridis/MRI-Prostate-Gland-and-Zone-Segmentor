@@ -51,7 +51,7 @@ COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Define mountable directories
-VOLUME ["/Pats", "/Outputs", "/dicom_outputs"]
+VOLUME ["/Pats", "/output"]
 
 # Run model.py when the container launches
 CMD ["python", "./__main__.py"]

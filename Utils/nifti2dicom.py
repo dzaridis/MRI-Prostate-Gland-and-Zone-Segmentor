@@ -136,7 +136,7 @@ def nifti2dicom( nifti_path:Path):
 
         # Write to the output directory and add the extension dcm, to force writing
         # in DICOM format.
-        output_name = os.path.join("dicom_outputs",patient_id,study_id,"t2w")
+        output_name = os.path.join("output",patient_id,study_id,"t2w")
         os.makedirs( output_name, exist_ok=True)
         output_file = os.path.join( output_name, f"image_{i:04}.dcm")
         writer.SetFileName(output_file)

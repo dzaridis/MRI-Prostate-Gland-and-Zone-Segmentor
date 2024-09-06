@@ -23,9 +23,9 @@ def outputs_saving(wg_dict_original:dict,
     for k,v in wg_dict_resampled.items():
         v.update(zones_resampled[k])
 
-    with open(os.path.join("Outputs","ResampledToOriginalSegmentationPaths.json"), "w") as file:
+    with open(os.path.join("output","ResampledToOriginalSegmentationPaths.json"), "w") as file:
         json.dump(wg_dict_resampled, file, indent=4)
-    with open(os.path.join("Outputs","nnOutputSegmentationPaths.json"), "w") as file:
+    with open(os.path.join("output","nnOutputSegmentationPaths.json"), "w") as file:
         json.dump(wg_dict_original, file, indent=4)
 
 def initial_processing(pats:dict):
@@ -154,17 +154,17 @@ class ZoneProcessor:
                 self.create_directories(key)
 
                 resampled_paths = {
-                    "tz_binary": os.path.join("Outputs", key, "Resampled", "tz_binary.nii.gz"),
-                    "tz_probs": os.path.join("Outputs", key, "Resampled", "tz_probs.nii.gz"),
-                    "pz_binary": os.path.join("Outputs", key, "Resampled", "pz_binary.nii.gz"),
-                    "pz_probs": os.path.join("Outputs", key, "Resampled", "pz_probs.nii.gz")
+                    "tz_binary": os.path.join("output", key, "Resampled", "tz_binary.nii.gz"),
+                    "tz_probs": os.path.join("output", key, "Resampled", "tz_probs.nii.gz"),
+                    "pz_binary": os.path.join("output", key, "Resampled", "pz_binary.nii.gz"),
+                    "pz_probs": os.path.join("output", key, "Resampled", "pz_probs.nii.gz")
                 }
 
                 original_paths = {
-                    "tz_binary": os.path.join("Outputs", key, "Original", "tz_binary.nii.gz"),
-                    "tz_probs": os.path.join("Outputs", key, "Original", "tz_probs.nii.gz"),
-                    "pz_binary": os.path.join("Outputs", key, "Original", "pz_binary.nii.gz"),
-                    "pz_probs": os.path.join("Outputs", key, "Original", "pz_probs.nii.gz")
+                    "tz_binary": os.path.join("output", key, "Original", "tz_binary.nii.gz"),
+                    "tz_probs": os.path.join("output", key, "Original", "tz_probs.nii.gz"),
+                    "pz_binary": os.path.join("output", key, "Original", "pz_binary.nii.gz"),
+                    "pz_probs": os.path.join("output", key, "Original", "pz_probs.nii.gz")
                 }
 
                 self.write_image(sitk.Resample(tz_binary, pats[key], sitk.Transform(), sitk.sitkNearestNeighbor),  resampled_paths["tz_binary"])

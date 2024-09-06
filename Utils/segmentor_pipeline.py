@@ -44,7 +44,7 @@ class Segmentor:
         self.pats_for_wg_inference = wg_nn.return_paths(pats_for_wg=self.pats_for_wg)
 
     def preparation_zones(self, input_patients:dict):
-        file_handling = helpers.ImageProcessorClass(base_output_path='Outputs', nnUNet_raw = nnUNet_raw)
+        file_handling = helpers.ImageProcessorClass(base_output_path='output', nnUNet_raw = nnUNet_raw)
         file_handling.process_images(self.pats_for_wg_inference, self.pats_for_wg, pats=input_patients)
         self.wg_dict_original, self.wg_dict_resampled = file_handling.get_paths()
 

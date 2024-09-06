@@ -558,7 +558,7 @@ def nifti2dicomseg(seg_dir_path:Path, t2_path:Path, single_seg:str=""):
     seg_ds.ContentCreatorName = "Dimitris Player"
 
     output = os.path.join(
-        "dicom_outputs",
+        "output",
         patient_id,
         study_uid,
         "segmentations"
