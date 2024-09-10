@@ -43,23 +43,30 @@ def run_process(patient_list:str): #input_folder, output_folder
 
 if __name__ == '__main__':
 
-    for x in os.listdir("output"):
-        if x != '.gitkeep':
-            shutil.rmtree( os.path.join("output",x))
+    with os.scandir(OUTPUT_VOLUME) as it:
+        for x in it:
+            if x.name == ".gitkeep":
+                continue
+            if x.is_dir():
+                shutil.rmtree(x.path)
+            else:
+                os.remove(x.path)
 
-    if os.path.exists("Pats/_gen_dicom2nifti"):
-        shutil.rmtree("Pats/_gen_dicom2nifti")
+    if os.path.exists(f"{INPUT_VOLUME}/_gen_dicom2nifti"):
+        shutil.rmtree(f"{INPUT_VOLUME}/_gen_dicom2nifti")
 
     pat_list = get_images( INPUT_VOLUME ) # .dcm 2 nifti or NifTi files instanly
-    process = multiprocessing.Process(
-        target=run_process,kwargs={"patient_list":pat_list}
-    )
-    process.start()
-    process.join()
+    # process = multiprocessing.Process(
+    #     target=run_process,kwargs={"patient_list":pat_list}
+    # )
+    # process.start()
+    # process.join()
+    run_process(pat_list)
 
     converter()
     cleanup_dicom_output("output")
     cleanup_output_folder("output")
     os.remove(os.path.join(INPUT_VOLUME,"patient_dict.yaml"))
     #upload("dicom_outputs")
-    shutil.rmtree("Pats/_gen_dicom2nifti")
+    if os.path.exists(f"{INPUT_VOLUME}/_gen_dicom2nifti"):
+        shutil.rmtree(f"{INPUT_VOLUME}/_gen_dicom2nifti")
