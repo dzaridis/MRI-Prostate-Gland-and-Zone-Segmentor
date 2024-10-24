@@ -125,5 +125,36 @@
             ipcRenderer.invoke('open-ohif-viewer');
         });
     </script>
+    <style>
+        #footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background-color: #4961b8; /* Sea blue background */
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 50%;
+            left: 0;
+        }
+    
+        #footer img {
+            height: 80px;
+            margin-right: 20px;
+        }
+    
+        #footer p {
+            font-size: 16px;
+            color: white;
+        }
+    </style>
+    <div id="footer">
+        <img src="eu.png" alt="EU Logo">
+        <p>
+            Funded by the European Union under GA No 101135932. Views and opinions expressed are however 
+            those of the author(s) only and do not necessarily reflect those of the European Union. Neither the
+            European Union nor the granting authority can be held responsible for them.
+        </p>
+    </div>
 </body>
 </html>
