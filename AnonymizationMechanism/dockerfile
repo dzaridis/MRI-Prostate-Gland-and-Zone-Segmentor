@@ -1,0 +1,21 @@
+# Use Python base image
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy your Python scripts
+COPY helpers/ /app/helpers/
+COPY __main__.py /app/
+
+# Install required packages
+RUN pip install pydicom
+
+# Create directory for mounting
+RUN mkdir -p /app/data
+
+# Set environment variable for volume
+ENV DATA_DIR=/app/data
+
+# Run the script
+CMD ["python", "__main__.py"]
