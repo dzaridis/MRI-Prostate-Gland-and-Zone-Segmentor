@@ -11,11 +11,13 @@ COPY __main__.py /app/
 # Install required packages
 RUN pip install pydicom
 
-# Create directory for mounting
-RUN mkdir -p /app/data
+# Create directories for input and output
+RUN mkdir -p /app/data/input
+RUN mkdir -p /app/data/output
 
-# Set environment variable for volume
-ENV DATA_DIR=/app/data
+# Set environment variables for volumes
+ENV INPUT_DIR=/app/data/input
+ENV OUTPUT_DIR=/app/data/output
 
 # Run the script
 CMD ["python", "__main__.py"]

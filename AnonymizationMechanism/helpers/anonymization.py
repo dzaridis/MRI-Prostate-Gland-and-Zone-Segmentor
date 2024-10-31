@@ -3,6 +3,12 @@ from pydicom import dcmread
 import os
 from typing import List
 from pydicom.uid import generate_uid
+import uuid
+
+def generate_patient_id():
+    # Generate a UUID and get its hex representation without dashes
+    hash_part = str(uuid.uuid4()).replace('-', '')[:8]  # Using first 8 characters
+    return f"PCa-{hash_part}"
 
 def find_dicom_files(root_dir):
     dicom_files = []
@@ -11,17 +17,13 @@ def find_dicom_files(root_dir):
             if file.endswith('.dcm'):
                 full_path = os.path.join(dirpath, file)
                 dicom_files.append(full_path)
-                path_parts = dirpath.split(os.sep)
-                patient_id = path_parts[-3]  
-                study_uid = path_parts[-2]
-                series_uid = path_parts[-1]
     return dicom_files
 
 def anonymize_dicom(dicom_paths: List[str], output_dir: str = "anonymized") -> None:
     """Anonymizes DICOM files according to the provided specification."""
     
     os.makedirs(output_dir, exist_ok=True)
-    new_id = str(generate_uid())
+    new_id = generate_patient_id()#str(generate_uid())
     sop_id = generate_uid()
     stud_id = generate_uid() 
     ser_id = generate_uid() 

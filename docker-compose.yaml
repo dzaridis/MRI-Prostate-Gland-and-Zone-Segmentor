@@ -1,9 +1,6 @@
-# REF: https://github.com/hyper4saken/ohif-orthanc
 services:
   orthanc_server:
     container_name: orthanc
-    # still no luck :-(
-    # image: orthancteam/orthanc:22.6.1 
     image: jodogne/orthanc-plugins
     ports:
       - 8042:8042
@@ -29,23 +26,33 @@ services:
     restart: always
     networks:
       - pacs
+  
+  dicom_anonymizer:
+    container_name: anonymizer
+    image: dicom-anonymizer:0.1
+    volumes:
+      - "${INPUT_FOLDER:?Input folder not set}:/app/data/input"  # Original DICOM input
+      - "${ANONYMIZED_FOLDER:?Anonymized folder not set}:/app/data/output"  # Anonymized output to local directory
+    networks:
+      - pacs
+    restart: "no"
+    environment:
+      - INPUT_DIR=/app/data/input
+      - OUTPUT_DIR=/app/data/output
 
   zone_segmentation:
     container_name: zone_segment
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.segment
     env_file:
-    - orthanc.env
+      - orthanc.env
     volumes:
-      - ${INPUT_FOLDER}:/Pats  # Input NIfTI files directory
-      - ${OUTPUT_FOLDER}:/Outputs  # Output segments in NIfTI format
-      - ${DICOM_OUTPUT_FOLDER}:/dicom_outputs  # Converted DICOM files
+      - "${ANONYMIZED_FOLDER:?Anonymized folder not set}:/Pats"  # Use anonymized folder as input
+      - "${OUTPUT_FOLDER:?Output folder not set}:/Outputs"  # Output segments in NIfTI format
+      - "${DICOM_OUTPUT_FOLDER:?DICOM output folder not set}:/dicom_outputs"  # Converted DICOM files
     networks:
       - pacs
 
 networks:
   pacs:
-
-volumes:
-  orthanc_db:
