@@ -2,7 +2,8 @@ const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec, execSync } = require('child_process');
-
+const Excel = require('exceljs');
+const moment = require('moment');
 let mainWindow;
 const dockerComposePath = path.join(__dirname, 'docker-compose.yml');
 
@@ -18,6 +19,20 @@ function createWindow() {
 
     mainWindow.loadFile('src/index.html');
 }
+
+ipcMain.handle('open-questionnaire', () => {
+    const questionnaireWindow = new BrowserWindow({
+        width: 1000,
+        height: 800,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        }
+    });
+    
+    questionnaireWindow.loadFile('src/questionnaire.html');
+});
+
 
 app.on('ready', createWindow);
 
@@ -209,6 +224,60 @@ ipcMain.handle('open-anonymized-folder', (event, outputDir) => {
 
 ipcMain.handle('open-visualization', () => {
     shell.openExternal('http://localhost:8050');
+});
+
+ipcMain.handle('save-questionnaire', async (event, responses) => {
+    try {
+        const outputDir = validateDirectory(process.env.OUTPUT_FOLDER || './output', 'Output', true);
+        const filePath = path.join(outputDir, 'questionnaire_responses.json');
+        
+        let questionnaires = [];
+        
+        // Check if file exists and read it
+        if (fs.existsSync(filePath)) {
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                questionnaires = JSON.parse(fileContent);
+                
+                // Ensure questionnaires is an array even if file exists
+                if (!Array.isArray(questionnaires)) {
+                    questionnaires = [];
+                }
+            } catch (parseError) {
+                console.error('Error parsing existing JSON:', parseError);
+                questionnaires = [];
+            }
+        }
+
+        // Create new response entry with timestamp
+        const newResponse = {
+            timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+            ...responses
+        };
+
+        // Add new response to array
+        questionnaires.push(newResponse);
+
+        // Write the updated array back to file
+        fs.writeFileSync(filePath, JSON.stringify(questionnaires, null, 2), 'utf8');
+        
+        console.log('Questionnaire responses saved successfully to:', filePath);
+        
+        dialog.showMessageBox(mainWindow, {
+            type: 'info',
+            title: 'Success',
+            message: `Questionnaire responses saved successfully to ${filePath}`
+        });
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error saving questionnaire responses:', error);
+        dialog.showErrorBox(
+            'Error',
+            `Failed to save questionnaire: ${error.message}`
+        );
+        throw error;
+    }
 });
 
 app.on('window-all-closed', () => {

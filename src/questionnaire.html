@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clinical Expert Questionnaire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .question-container {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clinical Expert Trustworthiness Assessment</h1>
+    <form id="questionnaireForm">
+        <div class="question-container">
+            <label>1. How would you rate the accuracy of the segmentation results?</label>
+            <textarea name="accuracy" required></textarea>
+        </div>
+        <div class="question-container">
+            <label>2. Does the tool provide consistent results across different patient data?</label>
+            <textarea name="consistency" required></textarea>
+        </div>
+        <div class="question-container">
+            <label>3. How user-friendly do you find the interface?</label>
+            <textarea name="usability" required></textarea>
+        </div>
+        <div class="question-container">
+            <label>4. What improvements would you suggest for the tool?</label>
+            <textarea name="improvements" required></textarea>
+        </div>
+        <div class="question-container">
+            <label>5. Would you recommend this tool for clinical use? Why or why not?</label>
+            <textarea name="recommendation" required></textarea>
+        </div>
+        <button type="submit" id="submitBtn">Submit Responses</button>
+    </form>
+    <script src="questionnaire.js"></script>
+</body>
+</html>
