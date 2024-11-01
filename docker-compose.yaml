@@ -28,8 +28,10 @@ services:
       - pacs
   
   dicom_anonymizer:
-    container_name: anonymizer
-    image: dicom-anonymizer:0.1
+    container_name: anonymization
+    build:
+      context: ./AnonymizationMechanism
+      dockerfile: Dockerfile
     volumes:
       - "${INPUT_FOLDER:?Input folder not set}:/app/data/input"  # Original DICOM input
       - "${ANONYMIZED_FOLDER:?Anonymized folder not set}:/app/data/output"  # Anonymized output to local directory
@@ -53,6 +55,21 @@ services:
       - "${DICOM_OUTPUT_FOLDER:?DICOM output folder not set}:/dicom_outputs"  # Converted DICOM files
     networks:
       - pacs
+  
+  visualization:
+    container_name: visualization
+    image: dimzaridis/vis:0.1
+    ports:
+      - "8050:8050"
+    volumes:
+      - "${OUTPUT_FOLDER}:/data"
+    environment:
+      - OUTPUT_DIR=/data
+    networks:
+      - pacs
+    depends_on:
+      - zone_segmentation
+    restart: unless-stopped
 
 networks:
   pacs:

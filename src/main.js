@@ -141,7 +141,7 @@ ipcMain.handle('start-docker-compose', async (event, inputDir, outputDir, dicomO
         // Start other services
         console.log('Starting remaining services...');
         await new Promise((resolve, reject) => {
-            exec('docker-compose up -d zone_segmentation orthanc_server ohif_viewer', {
+            exec('docker-compose up -d zone_segmentation orthanc_server ohif_viewer visualization', {
                 cwd: path.dirname(dockerComposePath),
                 env: env
             }, (error, stdout, stderr) => {
@@ -205,6 +205,10 @@ ipcMain.handle('open-anonymized-folder', (event, outputDir) => {
             'The anonymized data directory does not exist. Please run the tool first.'
         );
     }
+});
+
+ipcMain.handle('open-visualization', () => {
+    shell.openExternal('http://localhost:8050');
 });
 
 app.on('window-all-closed', () => {

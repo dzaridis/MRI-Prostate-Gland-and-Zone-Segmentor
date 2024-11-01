@@ -93,6 +93,7 @@
             <button id="openAnonymizedFolder" class="button">View Anonymized Data</button>
             <button id="openOutputFolder" class="button">Open Output Folder</button>
             <button id="openOhifViewer" class="button">Open Viewer</button>
+            <button id="openVisualization" class="button">Open Heatmaps</button>
         </div>
     </div>
 
@@ -137,6 +138,10 @@
 
         document.getElementById('openOhifViewer').addEventListener('click', () => {
             ipcRenderer.invoke('open-ohif-viewer');
+        });
+
+        document.getElementById('openVisualization').addEventListener('click', () => {
+            ipcRenderer.invoke('open-visualization');
         });
     </script>
     <style>
