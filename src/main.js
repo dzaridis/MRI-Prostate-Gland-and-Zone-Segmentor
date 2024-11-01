@@ -193,6 +193,20 @@ ipcMain.handle('open-ohif-viewer', () => {
     shell.openExternal('http://localhost:3000');
 });
 
+ipcMain.handle('open-anonymized-folder', (event, outputDir) => {
+    const anonymizedDir = path.join(outputDir, 'anonymized');
+    if (fs.existsSync(anonymizedDir)) {
+        shell.openPath(anonymizedDir);
+    } else {
+        console.error('Anonymized directory does not exist:', anonymizedDir);
+        // Optionally show an error dialog to the user
+        dialog.showErrorBox(
+            'Directory Not Found',
+            'The anonymized data directory does not exist. Please run the tool first.'
+        );
+    }
+});
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();

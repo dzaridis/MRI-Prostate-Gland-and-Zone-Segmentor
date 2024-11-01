@@ -59,6 +59,13 @@
             height: 200px;
             width: 150px;
         }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -82,8 +89,11 @@
     <img id="loadingGif" class="loading" src="loading.gif" alt="Loading...">
     <div id="result">
         <p>Segmentation complete.</p>
-        <button id="openOutputFolder" class="button">Open Output Folder</button>
-        <button id="openOhifViewer" class="button">Open Viewer</button>
+        <div class="button-group">
+            <button id="openAnonymizedFolder" class="button">View Anonymized Data</button>
+            <button id="openOutputFolder" class="button">Open Output Folder</button>
+            <button id="openOhifViewer" class="button">Open Viewer</button>
+        </div>
     </div>
 
     <script>
@@ -117,6 +127,10 @@
             });
         });
 
+        document.getElementById('openAnonymizedFolder').addEventListener('click', () => {
+            ipcRenderer.invoke('open-anonymized-folder', outputDir);
+        });
+
         document.getElementById('openOutputFolder').addEventListener('click', () => {
             ipcRenderer.invoke('open-output-folder', outputDir);
         });
@@ -131,20 +145,20 @@
             align-items: center;
             justify-content: flex-start;
             background-color: #4961b8; /* Sea blue background */
-            padding: 10px;
-            position: fixed;
+            padding: 0px;
+            position: relative;
             bottom: 0;
-            width: 50%;
+            width: 100%;
             left: 0;
         }
     
         #footer img {
-            height: 80px;
-            margin-right: 20px;
+            height: 60px;
+            margin-right: 15px;
         }
     
         #footer p {
-            font-size: 16px;
+            font-size: 14px;
             color: white;
         }
     </style>
