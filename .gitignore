@@ -157,6 +157,7 @@ dmypy.json
 cython_debug/
 
 AnonymizationMechanism/*.ipynb
+HeatmapsVisualization/*.ipynb
 
 # PyCharm
 #  JetBrains specific template is maintainted in a separate JetBrains.gitignore that can
