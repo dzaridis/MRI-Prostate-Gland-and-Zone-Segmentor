@@ -7,6 +7,58 @@ const moment = require('moment');
 let mainWindow;
 const dockerComposePath = path.join(__dirname, 'docker-compose.yml');
 
+// Function to clean the orthanc_db directory
+function cleanOrthancDb() {
+    try {
+        // Get the parent directory of the API (where main.js is located)
+        const parentDir = path.join(__dirname, '..');
+        const orthancDbPath = path.join(parentDir, 'orthanc_db');
+
+        console.log('Starting Orthanc DB cleanup at:', orthancDbPath);
+
+        // Check if directory exists
+        if (!fs.existsSync(orthancDbPath)) {
+            console.log('Orthanc DB directory does not exist:', orthancDbPath);
+            return;
+        }
+
+        // List of files/directories to preserve
+        const preserveList = ['WebViewerCache'];
+
+        // Read all items in the directory
+        const items = fs.readdirSync(orthancDbPath);
+
+        for (const item of items) {
+            const itemPath = path.join(orthancDbPath, item);
+
+            // Check if the item should be preserved
+            const shouldPreserve = preserveList.some(preserveItem => 
+                item === preserveItem || item.startsWith(preserveItem + '.')
+            );
+
+            if (!shouldPreserve) {
+                const stats = fs.statSync(itemPath);
+                
+                if (stats.isDirectory()) {
+                    // Remove directory and its contents
+                    fs.rmSync(itemPath, { recursive: true, force: true });
+                    console.log(`Removed directory: ${itemPath}`);
+                } else {
+                    // Remove file
+                    fs.unlinkSync(itemPath);
+                    console.log(`Removed file: ${itemPath}`);
+                }
+            } else {
+                console.log(`Preserved: ${itemPath}`);
+            }
+        }
+        console.log('Orthanc DB cleanup completed successfully');
+    } catch (error) {
+        console.error('Error during Orthanc DB cleanup:', error);
+        console.error('Error details:', error.stack);
+    }
+}
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 800,
@@ -281,6 +333,9 @@ ipcMain.handle('save-questionnaire', async (event, responses) => {
 });
 
 app.on('window-all-closed', () => {
+    console.log('All windows closed, starting cleanup...');
+    cleanOrthancDb();
+    
     if (process.platform !== 'darwin') {
         app.quit();
     }
